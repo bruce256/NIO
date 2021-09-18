@@ -9,6 +9,9 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
+/**
+ * @author LvSheng
+ */
 public class NioServer {
 	private Selector	serverSelector;
 
