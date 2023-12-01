@@ -9,6 +9,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -20,7 +21,14 @@ public class NioServer {
 	private Selector serverSelector;
 	
 	private int                corePoolSize = Runtime.getRuntime().availableProcessors();
-	private ThreadPoolExecutor threadPool   = new ThreadPoolExecutor(corePoolSize, corePoolSize * 2, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(1000));
+	private ThreadPoolExecutor ioThreadPool = new ThreadPoolExecutor(corePoolSize, corePoolSize * 2, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(1000), new ThreadFactory() {
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread thread = new Thread(r);
+			thread.setName("IO-thread");
+			return thread;
+		}
+	});
 	
 	public NioServer initServer(int port) throws IOException {
 		ServerSocketChannel serverChannel = ServerSocketChannel.open();
@@ -44,9 +52,9 @@ public class NioServer {
 				// 必须删除，否则下次遍历时还会遍历旧的key
 				iterator.remove();
 				if (key.isAcceptable()) {
-					threadPool.execute(() -> accept(key));
+					ioThreadPool.execute(() -> accept(key));
 				} else if (key.isReadable()) {
-					threadPool.execute(() -> read(key));
+					ioThreadPool.execute(() -> read(key));
 				}
 			}
 		}
