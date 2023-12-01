@@ -65,12 +65,15 @@ public class NioServer {
 		ServerSocketChannel server = (ServerSocketChannel) key.channel();
 		try {
 			// 获得和客户端连接的通道
+			// 在非阻塞模式下，accept() 方法会立刻返回，如果还没有新进来的连接，返回的将是 null。
 			SocketChannel channel = server.accept();
-			// 设置成非阻塞
-			channel.configureBlocking(false);
-			channel.write(ByteBuffer.wrap(new String("客户端连接成功\n").getBytes()));
-			// 注册
-			channel.register(this.serverSelector, SelectionKey.OP_READ);
+			if (channel != null) {
+				// 设置成非阻塞
+				channel.configureBlocking(false);
+				channel.write(ByteBuffer.wrap(new String("客户端连接成功\n").getBytes()));
+				// 注册
+				channel.register(this.serverSelector, SelectionKey.OP_READ);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

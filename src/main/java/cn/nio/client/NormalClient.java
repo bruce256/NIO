@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class NormalClient {
 
@@ -28,10 +29,15 @@ public class NormalClient {
 			pw.flush();
 			line = br.readLine();
 			System.out.println(line);
+			
+			Scanner scanner = new Scanner(System.in);
+			String  keyboardLine       = scanner.nextLine();
+			pw.write(keyboardLine);
+			pw.flush();
 		}
 	}
 
 	public static void main(String[] args) throws IOException {
-		new NormalClient().initClient("127.0.0.1", 8000).read();
+		new NormalClient().initClient("127.0.0.1", 8080).read();
 	}
 }
