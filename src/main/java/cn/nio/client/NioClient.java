@@ -28,7 +28,7 @@ public class NioClient {
 		boolean result = clientChannel.connect(new InetSocketAddress(ip, port));
 		System.out.println(result); // 返回false
 		// 注册
-		clientChannel.register(selector, SelectionKey.OP_CONNECT | SelectionKey.OP_WRITE);
+		clientChannel.register(selector, SelectionKey.OP_CONNECT);
 		return this;
 	}
 	
@@ -69,8 +69,11 @@ public class NioClient {
 		// 创建读取的缓冲区
 		ByteBuffer buffer = ByteBuffer.allocate(1024);
 		channel.read(buffer);
+		buffer.flip();
 		String msg = new String(buffer.array()).trim();
 		System.out.println("客户端收到信息：" + msg);
+		channel.write(ByteBuffer.wrap("hello, I'm client.".getBytes()));
+//		channel.register(this.selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 	}
 	
 	private void write(SelectionKey key) {
@@ -82,6 +85,7 @@ public class NioClient {
 			String line = scanner.nextLine();
 			try {
 				channel.write(buffer.put(line.getBytes()));
+				buffer.flip();
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw new RuntimeException(e);
@@ -95,7 +99,7 @@ public class NioClient {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		new NioClient().initClient("localhost", 8080)
+		new NioClient().initClient("127.0.0.1", 8080)
 					   .startListening();
 	}
 	

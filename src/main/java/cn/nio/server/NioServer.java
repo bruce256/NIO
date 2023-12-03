@@ -21,7 +21,7 @@ public class NioServer {
 	private Selector serverSelector;
 	
 	private int                corePoolSize = Runtime.getRuntime().availableProcessors();
-	private ThreadPoolExecutor ioThreadPool = new ThreadPoolExecutor(corePoolSize, corePoolSize * 2, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(1000), new ThreadFactory() {
+	private ThreadPoolExecutor ioThreadPool = new ThreadPoolExecutor(corePoolSize, corePoolSize * 2, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(100000), new ThreadFactory() {
 		@Override
 		public Thread newThread(Runnable r) {
 			Thread thread = new Thread(r);
@@ -52,9 +52,13 @@ public class NioServer {
 				// 必须删除，否则下次遍历时还会遍历旧的key
 				iterator.remove();
 				if (key.isAcceptable()) {
-					ioThreadPool.execute(() -> accept(key));
+					// 这里不能放在一个新的线程里
+//					ioThreadPool.execute(() -> accept(key));
+					accept(key);
 				} else if (key.isReadable()) {
 					ioThreadPool.execute(() -> read(key));
+				} else if (key.isWritable()) {
+					ioThreadPool.execute(() -> write(key));
 				}
 			}
 		}
@@ -72,7 +76,7 @@ public class NioServer {
 				channel.configureBlocking(false);
 				channel.write(ByteBuffer.wrap(new String("客户端连接成功\n").getBytes()));
 				// 注册
-				channel.register(this.serverSelector, SelectionKey.OP_READ);
+				channel.register(this.serverSelector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -85,9 +89,23 @@ public class NioServer {
 			// 创建读取的缓冲区
 			ByteBuffer buffer = ByteBuffer.allocate(1024);
 			channel.read(buffer);
+			buffer.flip();
 			String msg = new String(buffer.array()).trim();
-			System.out.println("服务端：" + msg);
+			System.out.println("服务端接收到消息：" + msg);
+			channel.write(ByteBuffer.wrap("hello, I'm server".getBytes()));
+			channel.register(this.serverSelector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void write(SelectionKey key) {
+		// 服务器可读取消息:得到事件发生的Socket通道
+		SocketChannel channel = (SocketChannel) key.channel();
+		try {
+			channel.write(ByteBuffer.wrap("来自服务端的消息".getBytes()));
+			channel.register(this.serverSelector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
