@@ -15,11 +15,10 @@ import java.util.Iterator;
 public class MainReactor implements Runnable {
 	
 	private ServerSocketChannel serverSocketChannel;
-	private Selector            serverSelector;
-	private SubReactor          subReactor;
+	private Selector   serverSelector;
+	private SubReactor subReactor;
 	
 	public MainReactor(ServerSocketChannel serverSocketChannel) {
-		this.serverSocketChannel = serverSocketChannel;
 		try {
 			serverSelector = Selector.open();
 			// 仅注册accept事件
@@ -28,15 +27,18 @@ public class MainReactor implements Runnable {
 			e.printStackTrace();
 		}
 		subReactor = new SubReactor();
-		subReactor.read();
+		Thread thread = new Thread(() -> subReactor.read());
+		thread.setName("subreactor");
+		thread.start();
 	}
 	
 	@Override
 	public void run() {
+		System.out.println("服务端启动成功");
 		while (true) {
 			// 当注册的事件到达时，方法返回；否则,该方法会一直阻塞
 			try {
-				serverSelector.select();
+				serverSelector.select(1000L);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -58,6 +60,7 @@ public class MainReactor implements Runnable {
 							clientChannel.configureBlocking(false);
 							clientChannel.write(ByteBuffer.wrap(new String("客户端连接成功\n").getBytes()));
 							subReactor.register(clientChannel);
+							System.out.println("运行到这里了");
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -66,5 +69,8 @@ public class MainReactor implements Runnable {
 			}
 		}
 		
+	}
+	
+	public static void main(String[] args) {
 	}
 }

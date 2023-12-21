@@ -41,17 +41,18 @@ public class SubReactor {
 	
 	public void register(SocketChannel clientChannel) {
 		try {
-			clientChannel.register(this.ioSelector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+			clientChannel.register(this.ioSelector, SelectionKey.OP_READ);
+			// 不调用这个方法，或者select方法不设置超时时间，会读不到消息
+//			this.ioSelector.wakeup();
 		} catch (ClosedChannelException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	public void read() {
-		
 		while (true) {
 			try {
-				ioSelector.select();
+				ioSelector.select(1000);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

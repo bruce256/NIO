@@ -26,15 +26,19 @@ public class Acceptor implements Runnable {
 			// 非阻塞模式
 			serverSocketChannel.configureBlocking(false);
 			// 绑定端口号
-			serverSocketChannel.socket().bind(new InetSocketAddress(port));
+			serverSocketChannel.bind(new InetSocketAddress(port));
 			
-			new Thread(new MainReactor(serverSocketChannel)).start();
+			Thread thread = new Thread(new MainReactor(serverSocketChannel));
+			thread.setName("MainReactor");
+			thread.start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	public static void main(String[] args) {
-		new Thread(new Acceptor(8090)).start();
+		Thread thread = new Thread(new Acceptor(8090));
+		thread.setName("Acceptor");
+		thread.start();
 	}
 }
