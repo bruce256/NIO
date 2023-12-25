@@ -7,6 +7,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author 吕胜 lvheng1
@@ -14,9 +15,9 @@ import java.util.Iterator;
  **/
 public class MainReactor implements Runnable {
 	
-	private ServerSocketChannel serverSocketChannel;
-	private Selector   serverSelector;
-	private SubReactor subReactor;
+	private Selector        serverSelector;
+	private SubReactorGroup subReactorGroup;
+	private AtomicLong      clientNo = new AtomicLong();
 	
 	public MainReactor(ServerSocketChannel serverSocketChannel) {
 		try {
@@ -26,10 +27,7 @@ public class MainReactor implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		subReactor = new SubReactor();
-		Thread thread = new Thread(() -> subReactor.read());
-		thread.setName("subreactor");
-		thread.start();
+		subReactorGroup = new SubReactorGroup();
 	}
 	
 	@Override
@@ -59,8 +57,9 @@ public class MainReactor implements Runnable {
 							// 设置成非阻塞
 							clientChannel.configureBlocking(false);
 							clientChannel.write(ByteBuffer.wrap(new String("客户端连接成功\n").getBytes()));
-							subReactor.register(clientChannel);
-							System.out.println("运行到这里了");
+							
+							subReactorGroup.dispatch(clientChannel, clientNo.getAndAdd(1));
+							System.out.println("新的连接建立成功");
 						}
 					} catch (IOException e) {
 						e.printStackTrace();

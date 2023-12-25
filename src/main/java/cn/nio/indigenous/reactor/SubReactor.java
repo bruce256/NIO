@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  * @author 吕胜 lvheng1
  * @date 2023/12/13
  **/
-public class SubReactor {
+public class SubReactor implements Runnable {
 	
 	private Selector           ioSelector;
 	private int                corePoolSize = Runtime.getRuntime().availableProcessors();
@@ -49,7 +49,8 @@ public class SubReactor {
 		}
 	}
 	
-	public void read() {
+	@Override
+	public void run() {
 		while (true) {
 			try {
 				ioSelector.select(1000);
@@ -64,7 +65,8 @@ public class SubReactor {
 				iterator.remove();
 				
 				if (key.isReadable()) {
-					ioThreadPool.execute(() -> read(key));
+					read(key);
+//					ioThreadPool.execute(() -> read(key));
 				}
 			}
 		}
