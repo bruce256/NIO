@@ -58,8 +58,8 @@ public class MainReactor implements Runnable {
 							clientChannel.configureBlocking(false);
 							clientChannel.write(ByteBuffer.wrap(new String("客户端连接成功\n").getBytes()));
 							
+							System.out.println(clientNo.get() + "号连接建立成功");
 							subReactorGroup.dispatch(clientChannel, clientNo.getAndAdd(1));
-							System.out.println("新的连接建立成功");
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
