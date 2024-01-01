@@ -7,10 +7,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 主要负责网络的读写（从网络中读字节流、将字节流发送到网络中）
@@ -21,17 +18,10 @@ import java.util.concurrent.TimeUnit;
 public class SubReactor implements Runnable {
 	
 	private Selector           ioSelector;
-	private int                corePoolSize = Runtime.getRuntime().availableProcessors();
-	private ThreadPoolExecutor ioThreadPool = new ThreadPoolExecutor(corePoolSize, corePoolSize * 2, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(100000), new ThreadFactory() {
-		@Override
-		public Thread newThread(Runnable r) {
-			Thread thread = new Thread(r);
-			thread.setName("IO-thread");
-			return thread;
-		}
-	});
+	private ThreadPoolExecutor businessThreadPool;
 	
-	public SubReactor() {
+	public SubReactor(ThreadPoolExecutor businessThreadPool) {
+		this.businessThreadPool = businessThreadPool;
 		try {
 			this.ioSelector = Selector.open();
 		} catch (IOException e) {
@@ -66,7 +56,6 @@ public class SubReactor implements Runnable {
 				
 				if (key.isReadable()) {
 					read(key);
-//					ioThreadPool.execute(() -> read(key));
 				}
 			}
 		}
@@ -81,7 +70,9 @@ public class SubReactor implements Runnable {
 			channel.read(buffer);
 			buffer.flip();
 			String msg = new String(buffer.array()).trim();
-			System.out.println("服务端接收到消息：" + msg);
+			businessThreadPool.execute(() -> {
+				System.out.println("服务端接收到消息：" + msg);
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
