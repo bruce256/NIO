@@ -12,16 +12,19 @@ import java.util.concurrent.TimeUnit;
  **/
 public class SubReactorGroup {
 	
-	private int                corePoolSize       = Runtime.getRuntime().availableProcessors();
-	private SubReactor[]       subReactors;
+	private int          corePoolSize = Runtime.getRuntime().availableProcessors();
+	private SubReactor[] subReactors;
+	private String       threadName   = "business-thread";
+	
 	private ThreadPoolExecutor businessThreadPool = new ThreadPoolExecutor(corePoolSize, corePoolSize * 2, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(100000), new ThreadFactory() {
 		@Override
 		public Thread newThread(Runnable r) {
+			
 			Thread thread = new Thread(r);
-			thread.setName("business-thread");
+			thread.setName(threadName);
 			return thread;
 		}
-	});
+	}, new AbortPolicyWithReport(threadName));
 	
 	public SubReactorGroup() {
 		subReactors = new SubReactor[corePoolSize];

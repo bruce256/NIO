@@ -70,9 +70,8 @@ public class SubReactor implements Runnable {
 			channel.read(buffer);
 			buffer.flip();
 			String msg = new String(buffer.array()).trim();
-			businessThreadPool.execute(() -> {
-				System.out.println("服务端接收到消息：" + msg);
-			});
+			
+			businessThreadPool.execute(new BizProcessHandler(msg));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
