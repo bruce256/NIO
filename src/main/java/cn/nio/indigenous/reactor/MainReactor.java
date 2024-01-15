@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * 建立链接，并把链接分发给从Reactor
+ *
  * @author 吕胜 lvheng1
  * @date 2023/12/13
  **/

@@ -26,7 +26,6 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 		ByteBuf buf = (ByteBuf) msg;
 		
 		System.out.println("客户端发送的数据是:" + buf.toString(CharsetUtil.UTF_8));
-		
 	}
 	
 	/**
