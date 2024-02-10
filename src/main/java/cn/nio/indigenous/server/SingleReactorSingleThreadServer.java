@@ -16,11 +16,11 @@ import java.util.Iterator;
  * @author 吕胜 lvheng1
  * @date 2023/12/4
  **/
-public class SingleThreadNioServer {
+public class SingleReactorSingleThreadServer {
 	
 	private Selector serverSelector;
 	
-	public SingleThreadNioServer initServer(int port) throws IOException {
+	public SingleReactorSingleThreadServer initServer(int port) throws IOException {
 		ServerSocketChannel serverChannel = ServerSocketChannel.open();
 		// 非阻塞模式
 		serverChannel.configureBlocking(false);
@@ -76,6 +76,6 @@ public class SingleThreadNioServer {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		new SingleThreadNioServer().initServer(8080).startListening();
+		new SingleReactorSingleThreadServer().initServer(8080).startListening();
 	}
 }
