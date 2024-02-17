@@ -1,4 +1,4 @@
-package cn.nio.indigenous.client;
+package cn.bio;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,11 +7,16 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class NormalClient {
+/**
+ * 传统阻塞式IO客户端
+ *
+ * @author lvsheng1
+ */
+public class BioClient {
 	
 	Socket clientSocket = null;
 	
-	public NormalClient initClient(String ip, int port) {
+	public BioClient initClient(String ip, int port) {
 		try {
 			clientSocket = new Socket(ip, port);
 		} catch (IOException e) {
@@ -38,11 +43,11 @@ public class NormalClient {
 		}
 	}
 	
-	public static void main(String[] args)  {
+	public static void main(String[] args) {
 		for (int i = 0; i < 2000; i++) {
 			new Thread(() -> {
 				try {
-					new NormalClient().initClient("127.0.0.1", 8090).read();
+					new BioClient().initClient("127.0.0.1", 8090).read();
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
