@@ -1,6 +1,6 @@
 package cn.nio.indigenous.reactor;
 
-import cn.nio.indigenous.client.NormalClient;
+import cn.bio.BioClient;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ public class PressureTest {
 		for (int i = 0; i < 2000; i++) {
 			new Thread(() -> {
 				try {
-					new NormalClient().initClient("127.0.0.1", 8090).read();
+					new BioClient().initClient("127.0.0.1", 8090).read();
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -29,7 +29,7 @@ public class PressureTest {
 		for (int i = 0; i < 2000; i++) {
 			new Thread(() -> {
 				try {
-					new NormalClient().initClient("127.0.0.1", 8090).read();
+					new BioClient().initClient("127.0.0.1", 8090).read();
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -42,7 +42,7 @@ public class PressureTest {
 		for (int i = 0; i < 2000; i++) {
 			new Thread(() -> {
 				try {
-					new NormalClient().initClient("127.0.0.1", 8090).read();
+					new BioClient().initClient("127.0.0.1", 8090).read();
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
