@@ -99,7 +99,7 @@ public class NioClient {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		new NioClient().initClient("127.0.0.1", 8080)
+		new NioClient().initClient("127.0.0.1", 8090)
 					   .startListening();
 	}
 	

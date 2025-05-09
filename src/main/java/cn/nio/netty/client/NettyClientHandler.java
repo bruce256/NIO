@@ -1,5 +1,8 @@
 package cn.nio.netty.client;
 
+import com.alibaba.fastjson.JSON;
+
+import cn.domain.Person;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -22,7 +25,8 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		// 发送数据
 		System.out.println("连接上了 服务器....");
-		ctx.writeAndFlush(Unpooled.copiedBuffer("哈哈 你好呀!!!", CharsetUtil.UTF_8));
+		Person person = new Person("person", 10);
+		ctx.writeAndFlush(Unpooled.copiedBuffer(JSON.toJSONString(person), CharsetUtil.UTF_8));
 	}
 	
 	/**
