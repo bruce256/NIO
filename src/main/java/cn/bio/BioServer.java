@@ -38,6 +38,16 @@ public class BioServer {
 			ioThread.start();
 		}
 	}
+	
+	public static void main(String[] args) {
+		BioServer bioServer = new BioServer();
+		try {
+			bioServer.initServer(8090).listen();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		
+	}
 }
 
 class IoThread implements Runnable {
